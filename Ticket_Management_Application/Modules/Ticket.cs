@@ -2,6 +2,7 @@
 {
     public class Ticket
     {
+        //fields of Tickets
         public int Id { get; set; }
         public int TicketNo { get; set; }
         public string Module { get; set; }
