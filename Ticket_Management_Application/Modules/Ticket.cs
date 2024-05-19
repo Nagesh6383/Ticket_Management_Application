@@ -11,5 +11,6 @@
         public bool IsClosed { get; set; }
         public string Owner { get; set; }
         public string OName {get; set;}
+        public int date { get; set; }
     }
 }
