@@ -10,5 +10,6 @@
         public string TeamAssigned { get; set; }
         public bool IsClosed { get; set; }
         public string Owner { get; set; }
+        public string OName {get; set;}
     }
 }
