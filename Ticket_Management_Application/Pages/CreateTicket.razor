@@ -1,0 +1,93 @@
+﻿@page "/createticket"
+@using Ticket_Management_Application.Modules
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.Forms
+@inject ITicketService ticketService
+@using System.Data.SqlClient
+
+<h3>Create Ticket</h3>
+
+@if (!string.IsNullOrWhiteSpace(successMessage))
+{
+    <div class="alert alert-success">
+        @successMessage
+    </div>
+}
+
+<EditForm Model="@newTicket" OnValidSubmit="CreatedTicket">
+    <div class="form-group">
+        <label for="module">Ticket Module:</label>
+        <InputSelect id="module" class="form-control" @bind-Value="newTicket.Module">
+            <option value="BugFix">Bug Fix</option>
+            <option value="FeatureRequest">Feature Request</option>
+            <option value="TechnicalSupport">Technical Support</option>
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label for="Description">Ticket Description:</label>
+        <InputText id="Description" class="form-control" @bind-Value="newTicket.Description"></InputText>
+    </div>
+
+    <div class="form-group">
+        <label for="Attachment">Attachment:</label>
+        <InputFile id="Attachment" OnChange="HandleFileSelection"></InputFile>
+    </div>
+
+    <div class="form-group">
+        <label for="owner">Ticket Owner:</label>
+        <InputText id="owner" class="form-control" @bind-Value="newTicket.Owner"></InputText>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Ticket</button>
+</EditForm>
+
+@code {
+    public string constr = "Data Source=DESKTOP-MLHRI2K;Initial Catalog=Db_supportTicket;Integrated Security=true";
+    
+    private Ticket newTicket = new Ticket();
+
+    public CreateTicket(Ticket newTicket)
+    {
+        this.newTicket = newTicket;
+    }
+
+    private string successMessage = "";
+    private IFileListEntry selectedFile;
+
+   
+
+    private void CreatedTicket()
+    {
+        try
+        {
+
+            using (SqlConnection con = new SqlConnection(constr))
+            {
+                string query = "INSERT INTO Tickets (Module, Description, Attachment, Owner) VALUES (@Module, @Description, @Attachment, @Owner); SELECT SCOPE_IDENTITY()";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@Module", newTicket.Module);
+                cmd.Parameters.AddWithValue("@Description", newTicket.Description);
+                cmd.Parameters.AddWithValue("@Attachment", selectedFile != null ? selectedFile.Name : null);
+                cmd.Parameters.AddWithValue("@Owner", newTicket.Owner);
+                con.Open();
+                var newTicketId = cmd.ExecuteScalar();
+                con.Close();
+
+                successMessage = "Ticket created successfully!";
+                newTicket = new Ticket();
+            }
+        }
+        catch (Exception ex)
+        {
+            successMessage = "Error creating the ticket: " + ex.Message;
+        }
+    }
+
+    private void HandleFileSelection(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+    }
+   
+
+}

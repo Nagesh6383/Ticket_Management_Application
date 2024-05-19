@@ -1,0 +1,112 @@
+﻿@page "/reopenticket"
+@page "/reopenticket/{id:int}"
+@using Ticket_Management_Application.Modules
+@inject ITicketService ticketService
+
+<h3>Reopen Ticket</h3>
+<style>
+
+    .form-container {
+        width: 50%;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        background-color: #f9f9f9;
+    }
+
+ 
+    h3 {
+        text-align: center;
+        color: #333;
+    }
+
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    
+    label {
+        font-weight: bold;
+        color: #555;
+    }
+
+  
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+  
+    .btn-warning {
+        background-color: #ffc107;
+        color: #333;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+       
+        .btn-warning:hover {
+            background-color: #ffa000;
+        }
+
+   
+    textarea[readonly] {
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+    }
+</style>
+
+
+@if (ticket != null)
+{
+    <form method="post">
+        <div class="form-group">
+            <label for="ticketId">Ticket No:</label>
+            <input type="text" id="ticketId" class="form-control" @bind="ticket.Id"/>
+        </div>
+        <div class="form-group">
+            <label for="module">Module:</label>
+            <input type="text" id="module" class="form-control" @bind="ticket.Module" />
+        </div>
+        <div class="form-group">
+            <label for="ticketDescription">Ticket Description:</label>
+            <textarea class="form-control" id="ticketDescription" @bind="ticket.Description"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="developerComment">Developer Comment:</label>
+            <textarea class="form-control" id="developerComment" @bind="ticket.DeveloperComment" readonly></textarea>
+        </div>
+        <div class="form-group">
+            <label for="teamAssigned">Team Assigned:</label>
+            <input type="text" id="teamAssigned" class="form-control" @bind="ticket.TeamAssigned" />
+        </div>
+        <button class="btn btn-warning" @onclick="ReopendTicket">Re-Open Ticket</button>
+    </form>
+}
+
+@code {
+    private string constr = "Data Source=DESKTOP-MLHRI2K;Initial Catalog=Db_supportTicket;Integrated Security=true";
+    [Parameter] public int id { get; set; }
+    private Ticket ticket;
+
+    protected override void OnInitialized()
+    {
+        ticket = ticketService.GetTicketById(id);
+    }
+
+    private void ReopendTicket()
+    {
+        if (ticket != null)
+        {
+            ticket.IsClosed = false;
+            ticketService.UpdateTicket(ticket);
+        }
+    }
+}
